@@ -1,17 +1,18 @@
 import React from 'react';
-import { configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-
 import Task from './Task';
 import PropTypes from 'prop-types';
+
+import { connect } from 'react-redux';
+import { archiveTask, pinTask } from '../lib/redux'
+import { configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter() });
 
-function TaskList({ loading, tasks, onPinTask, onArchiveTask}) {
+export function PureTaskList({ loading, tasks, onPinTask, onArchiveTask}) {
   const events = {
     onPinTask,
     onArchiveTask,
   }
-
   const LoadingRow = (
     <div className="loading-item">
       <span className="glow-checkbox" />
@@ -33,6 +34,7 @@ function TaskList({ loading, tasks, onPinTask, onArchiveTask}) {
       </div>
     );
   }
+
 
   if(tasks.length === 0) {
     return (
@@ -58,15 +60,26 @@ function TaskList({ loading, tasks, onPinTask, onArchiveTask}) {
   );
 }
 
-TaskList.propTypes = {
+
+
+
+PureTaskList.propTypes = {
   loading: PropTypes.bool,
   tasks: PropTypes.arrayOf(Task.propTypes.task).isRequired,
   onPinTask: PropTypes.func.isRequired,
   onArchiveTask: PropTypes.func.isRequired,
-}
-TaskList.defaultProps = {
+};
+
+PureTaskList.defaultProps = {
   loading: false,
-}
+};
 
-
-export default TaskList;
+export default connect(
+  ({ tasks }) => ({
+    tasks: tasks.filter(t => t.state === 'TASK_INBOX' || t.state === 'TASK_PINNED'),
+  }),
+  dispatch => ({
+    onArchiveTask: id => dispatch(archiveTask(id)),
+    onPinTask: id => dispatch(pinTask(id)),
+  })
+)(PureTaskList);
