@@ -28,6 +28,7 @@ const styles = {
     margin: 20,
     padding: 30,
     maxWidth: 400,
+    borderRadius: '10px',
   },
   form: {
     display: 'flex',
